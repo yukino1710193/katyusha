@@ -1,0 +1,29 @@
+syntax = "proto3";
+package outoushuugou;
+
+option go_package = "pkg/outoushuugou";
+
+enum Status {
+    Unknown = 0;
+    Success = 1;
+    Failed = 2;
+}
+
+// Activator-Response -> Katyusha-Outou
+message ResponseFeedback {
+    uint32 ID = 1;
+    string SourceIP = 2;
+    string Domain = 3;
+    string URI = 4;
+    string Method = 5;
+
+    message HeaderSchema {
+        string field = 1;
+        string value = 2;
+    }
+    repeated HeaderSchema Headers = 6;
+}
+
+message ResponseConfirm {
+    Status SymbolizeResponse = 1;
+}
