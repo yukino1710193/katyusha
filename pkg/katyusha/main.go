@@ -2,6 +2,7 @@ package katyusha
 
 import (
 	_ "github.com/bonavadeur/katyusha/pkg/junbanmachi"
+	_ "github.com/bonavadeur/katyusha/pkg/fukabunsan"
 )
 
 const (

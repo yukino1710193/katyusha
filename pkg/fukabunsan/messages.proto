@@ -1,0 +1,30 @@
+syntax = "proto3";
+package fukabunsan;
+
+option go_package = "pkg/fukabunsan";
+
+enum Status {
+    Unknown = 0;
+    Success = 1;
+    Failed = 2;
+}
+
+// Activator-LB -> Katyusha-FukaBunsan: LB
+message LBRequest {
+    uint32 ID = 1;
+    repeated string targets = 2;
+    string SourceIP = 3;
+    string Domain = 4;
+    string URI = 5;
+    string Method = 6;
+
+    message HeaderSchema {
+        string field = 1;
+        string value = 2;
+    }
+    repeated HeaderSchema Headers = 7;
+}
+
+message LBResponse  {
+    string target = 1;
+}
