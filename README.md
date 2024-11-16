@@ -27,6 +27,8 @@ According to the anime **Girls und Panzer**, the character **Katyusha** really h
 
 ## 2. Structure
 
+![](docs/images/katyusha-structure.jpg)
+
 ## 3. Installation
 
 ## 4. Development
