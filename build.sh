@@ -22,21 +22,6 @@ logInfo() { echo -e "$BLUE-----$1-----$NC";}
 logError() { echo -e "$RED-----$1-----$NC";}
 logStage() { echo -e "$YELLOW###############---$1---###############$NC";}
 
-koBuild() {
-    logStage "Ko build image"
-    export KO_DOCKER_REPO="ko.local"
-    ko build ./cmd/$component/
-    if [ "$?" -ne "0" ]; then
-        logError "ko build error"
-        exit 1
-    else
-        logSuccess "ko build successfully"
-    fi
-    endTime=`date +%s`
-    koBuildTime=`expr $endTime - $startTime`
-    logInfo "KoBuild time was $koBuildTime seconds."
-}
-
 dockerBuild() {
     compress=$1
     mode=$2
@@ -56,6 +41,11 @@ dockerBuild() {
     docker build --no-cache -t $DOCKER_REGISTRY/$IMAGE:dev .
     docker save -o $IMAGE.tar $DOCKER_REGISTRY/$IMAGE:dev
 
+    if [ "$mode" == "mnode" ]; then
+        scp $IMAGE.tar node2:~/
+        scp $IMAGE.tar node3:~/
+    fi
+
     sudo crictl rmi docker.io/$DOCKER_REGISTRY/$IMAGE:dev
     sudo ctr -n=k8s.io images import $IMAGE.tar
     if [ "$mode" == "mnode" ]; then
@@ -72,35 +62,6 @@ dockerBuild() {
         ssh node2 "rm -rf $IMAGE.tar"
         ssh node3 "rm -rf $IMAGE.tar"
     fi
-}
-
-convertImage() {
-    logStage "change image from docker to crictl"
-    image=$(docker images | grep ko.local | grep $component | grep latest | awk '{print $1}'):latest
-    docker rmi -f $DOCKER_REGISTRY/$IMAGE:dev
-    docker image tag $image $DOCKER_REGISTRY/$IMAGE:dev
-    docker rmi $image
-    image=$(docker images | grep ko.local | grep $component | awk '{print $1}'):$(docker images | grep ko.local | grep $component | awk '{print $2}')
-    docker rmi $image
-    docker save -o $IMAGE.tar $DOCKER_REGISTRY/$IMAGE:dev
-    logSuccess "Saved atarashi-imeji to .tar file"
-    
-    sudo crictl rmi docker.io/$DOCKER_REGISTRY/$IMAGE:dev
-    sudo ctr -n=k8s.io images import $IMAGE.tar
-    if [ "$plane" == "data" ]; then
-        ssh node2 "crictl rmi docker.io/bonavadeur/ikukantai-$component:dev"
-        ssh node2 "ctr -n=k8s.io images import /root/ikukantai-$component.tar"
-        ssh node3 "crictl rmi docker.io/bonavadeur/ikukantai-$component:dev"
-        ssh node3 "ctr -n=k8s.io images import /root/ikukantai-$component.tar"
-    fi
-    logSuccess "Untar atarashi-imeji"
-
-    rm -rf $IMAGE.tar
-    if [ "$plane" == "data" ]; then
-        ssh node2 "rm -rf /root/ikukantai-$component.tar"
-        ssh node3 "rm -rf /root/ikukantai-$component.tar"
-    fi
-    message="Untar atarashi-imeji" && logSuccess
 }
 
 pushDockerImage() {
@@ -137,7 +98,7 @@ logPod() {
     logInfo "Build time was `expr $endTime - $startTime` seconds."
     logStage "$IMAGE logs"
     echo "pod:"${pods[0]}
-    kubectl -n $NAMESPACE logs ${pods[0]} -c queue-proxy -f
+    kubectl -n $NAMESPACE logs ${pods[0]} -f
 }
 #
 #
@@ -161,8 +122,8 @@ if [ $OPTION == "ful" ]; then
     deployNewVersion
     logPod
 elif [ $OPTION == "push" ]; then
-    # ./build.sh ful snode
-    # ./build.sh ful mnode
+    # ./build.sh push snode
+    # ./build.sh push mnode
     dockerBuild "high" $2
     pushDockerImage $2
     deployNewVersion
@@ -170,17 +131,4 @@ elif [ $OPTION == "push" ]; then
 elif [ $OPTION == "log" ]; then
     deployNewVersion
     logPod
-# elif [ $OPTION == "ko" ]; then
-#     image=$(docker images | grep ko.local | grep $IMAGE | awk '{print $3}')
-#     docker rmi -f $image
-#     koBuild
-# elif [ $OPTION == "build" ]; then
-#     dockerBuild
-# elif [ $OPTION == "dep" ]; then
-#     convertImage
-#     deployNewVersion
-#     logPod
-# elif [ $OPTION == "debug" ]; then
-#     koBuild
-#     convertImage
 fi
