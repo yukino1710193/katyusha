@@ -39,6 +39,6 @@ func (lb *LoadBalancer) LBResponseAdapter(params ...interface{}) (interface{}, e
 }
 
 func (lb *LoadBalancer) loadBalance(lbRequest *LBRequest) (string, error) {
-	target := lbRequest.Targets[0]
+	target := lb.LBAlgorithm(lbRequest)
 	return target, nil
 }
