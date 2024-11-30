@@ -84,6 +84,7 @@ func (q *ExtraQueue) Pop() *Packet {
 	<-q.Next // hangout until len of Queue > 0
 	q.queueLock.Lock()
 	popPacket := q.Queue[len(q.Queue)-1]
+	q.HeaderModifier(popPacket)
 	q.Queue = q.Queue[:len(q.Queue)-1]
 	q.queueLock.Unlock()
 
@@ -95,18 +96,5 @@ func (q *ExtraQueue) sort(p *Packet) {
 	q.sortLock.Lock()
 	defer q.sortLock.Unlock()
 
-	// example of adding header
-	p.Headers = append(p.Headers, &PushRequest_HeaderSchema{
-		Field: "naniField",
-		Value: "naniValue",
-	})
-
-	// for i, header := range p.Headers {
-	// 	bonalib.Info("Header", i, header.Field, header.Value)
-	// }
-
-	// position := -1
-	// position = len(q.Queue) - 1
-	// q.Queue = append(q.Queue[:position+1], append([]*Packet{p}, q.Queue[position+1:]...)...)
-	q.Queue = append([]*Packet{p}, q.Queue...)
+	q.SortAlgorithm(p)
 }
