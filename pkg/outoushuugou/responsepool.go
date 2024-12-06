@@ -37,6 +37,7 @@ func (rp *ResponsePool) ResponsePoolAdapter(params ...interface{}) (interface{},
 	feedback := params[0].(*ResponseFeedback)
 
 	rp.PoolAppendingLock.Lock()
+	bonalib.Info("ResponsePoolAdapter", feedback)
 	rp.Pool = append([]*ResponseFeedback{feedback}, rp.Pool...)
 	rp.PoolAppendingLock.Unlock()
 

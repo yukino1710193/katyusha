@@ -30,15 +30,12 @@ func NewLoadBalancer() *LoadBalancer {
 func (lb *LoadBalancer) LBResponseAdapter(params ...interface{}) (interface{}, error) {
 	lbRequest := params[0].(*LBRequest)
 
-	target, err := lb.loadBalance(lbRequest)
-	if err != nil {
-		panic(err)
-	}
+	response := lb.loadBalance(lbRequest)
 
-	return &LBResponse{Target: target}, nil
+	return response, nil
 }
 
-func (lb *LoadBalancer) loadBalance(lbRequest *LBRequest) (string, error) {
-	target := lb.LBAlgorithm(lbRequest)
-	return target, nil
+func (lb *LoadBalancer) loadBalance(lbRequest *LBRequest) *LBResponse {
+	response := lb.LBAlgorithm(lbRequest)
+	return response
 }

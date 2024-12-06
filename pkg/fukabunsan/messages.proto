@@ -27,4 +27,10 @@ message LBRequest {
 
 message LBResponse  {
     string target = 1;
+
+    message HeaderSchema {
+        string field = 1;
+        string value = 2;
+    }
+    repeated HeaderSchema Headers = 2;
 }
