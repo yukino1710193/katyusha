@@ -2,6 +2,7 @@ package fukabunsan // 負荷分散 - ふかぶんさん - Load Balancing
 
 import (
 	"github.com/bonavadeur/katyusha/pkg/bonalib"
+	"time"
 )
 
 func (lb *LoadBalancer) LBAlgorithm(lbRequest *LBRequest) *LBResponse {
@@ -12,9 +13,10 @@ func (lb *LoadBalancer) LBAlgorithm(lbRequest *LBRequest) *LBResponse {
 		Headers: make([]*LBResponse_HeaderSchema, 0),
 	}
 	ret.Headers = append(ret.Headers, &LBResponse_HeaderSchema{
-		Field: "Katyusha-F-Field",
-		Value: "Katyusha-F-Field",
+		Field: "LB-F-Field",
+		Value: "Trái",
 	})
 
+	time.Sleep(5*time.Second) // mô phỏng thời gian xử lý
 	return ret
 }

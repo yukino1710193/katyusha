@@ -4,10 +4,12 @@ import "github.com/bonavadeur/katyusha/pkg/bonalib"
 
 const (
 	BASE_PATH = "/katyusha/fukabunsan"
+	MIPORIN_URL = "http://miporin.knative-serving.svc.cluster.local/api/weight/okasan/okaasan/kodomo/hello"
 )
 
 var (
 	LB *LoadBalancer
+	MIPORIN_matrix [][]int32
 )
 
 func init() {
@@ -16,6 +18,7 @@ func init() {
 
 	if enableKatyusha && enableKatyushaFukabunsan {
 		bonalib.Log("Fukabunsan is enabled")
+		go startPeriodicTask()
 		go func() {
 			LB = NewLoadBalancer()
 		}()

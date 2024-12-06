@@ -6,8 +6,8 @@ func (q *ExtraQueue) SortAlgorithm(p *Packet) {
 	bonalib.Info("SortAlgorithm", "Packet", p)
 	// example of adding header
 	p.Headers = append(p.Headers, &PushRequest_HeaderSchema{
-		Field: "Katyusha-J-Field-1",
-		Value: "Katyusha-J-Value-1",
+		Field: "Queue-J-field-1",
+		Value: "Nước mắt em rơi",
 	})
 
 	q.Queue = append([]*Packet{p}, q.Queue...)
