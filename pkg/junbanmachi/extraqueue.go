@@ -24,10 +24,11 @@ type ExtraQueue struct {
 
 func NewExtraQueue() *ExtraQueue {
 	containerConcurrency := bonalib.Cm2Int("katyusha-junbanmachi-concurrent-request")
+	katyushaThreads := bonalib.Cm2Int("katyusha-threads")
 
 	newExtraQueue := &ExtraQueue{
 		Queue:           make([]*Packet, 0),
-		Next:            make(chan bool, containerConcurrency),
+		Next:            make(chan bool, katyushaThreads),
 		NextQueueSize:   containerConcurrency,
 		NextQueueLength: 0,
 		popLock:         sync.Mutex{},
@@ -40,7 +41,7 @@ func NewExtraQueue() *ExtraQueue {
 		"PushBridge",
 		hashi.HASHI_TYPE_SERVER,
 		BASE_PATH+"/push-bridge",
-		bonalib.Cm2Int("katyusha-threads"),
+		katyushaThreads,
 		reflect.TypeOf(PushRequest{}),
 		reflect.TypeOf(PushResponse{}),
 		newExtraQueue.PushResponseAdapter,
@@ -49,7 +50,7 @@ func NewExtraQueue() *ExtraQueue {
 		"PopBridge",
 		hashi.HASHI_TYPE_SERVER,
 		BASE_PATH+"/pop-bridge",
-		bonalib.Cm2Int("katyusha-threads"),
+		katyushaThreads,
 		reflect.TypeOf(PopRequest{}),
 		reflect.TypeOf(PopResponse{}),
 		newExtraQueue.PopResponseAdapter,
