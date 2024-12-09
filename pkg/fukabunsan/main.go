@@ -8,6 +8,10 @@ const (
 )
 
 var (
+	// KUBECONFIG = GetKubeconfig()
+	// CLIENTSET  = GetClientSet()
+	// NODENAMES  = GetNodenames()
+	// PODCIDRS   = GetPodsCIDRs()
 	LB *LoadBalancer
 	MIPORIN_matrix [][]int32
 )

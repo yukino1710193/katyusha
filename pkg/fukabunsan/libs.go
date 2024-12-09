@@ -54,7 +54,7 @@ func startPeriodicTask() {
 		MIPORIN_matrix = matrix
 		mu.Unlock()
 
-		bonalib.Log("Ma trận Weight được cập nhật:", MIPORIN_matrix)
+		// bonalib.Log("Ma trận Weight được cập nhật:", MIPORIN_matrix)
 	}
 
 }

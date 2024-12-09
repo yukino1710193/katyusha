@@ -2,12 +2,12 @@ package fukabunsan // 負荷分散 - ふかぶんさん - Load Balancing
 
 import (
 	"github.com/bonavadeur/katyusha/pkg/bonalib"
-	"time"
+	// "time"
 )
 
 func (lb *LoadBalancer) LBAlgorithm(lbRequest *LBRequest) *LBResponse {
 	bonalib.Info("LBAlgorithm", "lbRequest", lbRequest)
-	// return lbRequest.Targets[0]
+
 	ret := &LBResponse{
 		Target:  lbRequest.Targets[0],
 		Headers: make([]*LBResponse_HeaderSchema, 0),
@@ -17,6 +17,6 @@ func (lb *LoadBalancer) LBAlgorithm(lbRequest *LBRequest) *LBResponse {
 		Value: "Trái",
 	})
 
-	time.Sleep(5*time.Second) // mô phỏng thời gian xử lý
+	// time.Sleep(0*time.Second) // mô phỏng thời gian xử lý
 	return ret
 }
