@@ -3,8 +3,12 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"strconv"
+	"strings"
 	"sync"
 	"time"
+
+	"fmt"
 
 	"github.com/bonavadeur/katyusha/pkg/bonalib"
 )
@@ -57,4 +61,56 @@ func startPeriodicTask() {
 		// bonalib.Log("Ma trận Weight được cập nhật:", MIPORIN_matrix)
 	}
 
+}
+
+// Hàm chuyển đổi IP từ dạng chuỗi 4octet thập phân sang dạng nhị phân 32 bit
+func IP2Int32(ip string) string {
+	var binaryIP string
+	// Tách chuỗi IP thành các octet
+	octets := strings.Split(ip, ".")
+
+	for _, octet := range octets {
+		num, err := strconv.Atoi(octet)
+		if err != nil {
+			bonalib.Log("Lỗi khi chuyển đổi:", err)
+			return ""
+		}
+		// Chuyển số nguyên sang dạng nhị phân và đảm bảo có 8 bit
+		binary := fmt.Sprintf("%08b", num)
+		binaryIP += binary // Nối nhị phân vào chuỗi kết quả
+	}
+
+	return binaryIP
+}
+
+func IsPodinPodcidr(ip string, cidr PodCIDR) bool {
+	// Chuyển đổi IP sang dạng nhị phân
+	binaryIP := IP2Int32(ip)
+	// Chuyển đổi CIDR sang dạng nhị phân
+	binaryCIDR := IP2Int32(cidr.PodIPRange)
+	return binaryIP[:cidr.PodPrefix] == binaryCIDR[:cidr.PodPrefix]
+}
+
+func IPfromNode(ip string) string {
+	for _ , cidr := range PODCIDRS {
+		if IsPodinPodcidr(ip, cidr) {
+			// bonalib.Info("Request from node :", cidr.Nodename)
+			return cidr.Nodename
+		}
+	}
+	return "Request from Unknown Node"
+}
+
+func gachaNodeTarget(random int,Fight []int32) int {
+	var ret int = -1;
+	for _ , value := range Fight {
+		ret++
+		if random < int(value) {
+			return ret // trả về node
+
+
+		}
+		random -= int(value)
+	}
+	return -1
 }
