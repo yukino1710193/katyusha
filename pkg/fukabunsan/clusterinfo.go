@@ -7,7 +7,7 @@ import (
 	"strings"
 	// "errors"
 
-	"github.com/bonavadeur/katyusha/pkg/bonalib"
+	"github.com/yukino1710193/katyusha/pkg/bonalib"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"

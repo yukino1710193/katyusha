@@ -1,6 +1,6 @@
 package fukabunsan // 負荷分散 - ふかぶんさん - Load Balancing
 
-import "github.com/bonavadeur/katyusha/pkg/bonalib"
+import "github.com/yukino1710193/katyusha/pkg/bonalib"
 
 const (
 	BASE_PATH = "/katyusha/fukabunsan"

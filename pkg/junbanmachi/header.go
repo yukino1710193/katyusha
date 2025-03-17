@@ -1,6 +1,6 @@
 package junbanmachi // 順番待ち - じゅんばんまち - Queuing
 
-import "github.com/bonavadeur/katyusha/pkg/bonalib"
+import "github.com/yukino1710193/katyusha/pkg/bonalib"
 
 func (q *ExtraQueue) HeaderModifier(p *Packet) {
 	bonalib.Info("HeaderModifier", "Packet", p)

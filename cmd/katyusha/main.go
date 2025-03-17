@@ -4,11 +4,11 @@ import (
 	"context"
 
 	"github.com/bonavadeur/katyusha/pkg/bonalib"
-	_ "github.com/bonavadeur/katyusha/pkg/katyusha"
+	_ "github.com/yukino1710193/katyusha/pkg/katyusha"
 )
 
 func main() {
-	bonalib.Log("Konnichiwa, Katyusha-sama desu . Watashi wa Yukino Yukinoshita <3 <3 <3")
+	bonalib.Log("Katyusha ON")
 	ctx := context.Background()
 	// do something here ...
 

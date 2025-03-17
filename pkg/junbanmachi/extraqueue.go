@@ -4,8 +4,8 @@ import (
 	"reflect"
 	"sync"
 
-	"github.com/bonavadeur/katyusha/pkg/bonalib"
-	"github.com/bonavadeur/katyusha/pkg/hashi"
+	"github.com/yukino1710193/katyusha/pkg/bonalib"
+	"github.com/yukino1710193/katyusha/pkg/hashi"
 )
 
 type ExtraQueue struct {

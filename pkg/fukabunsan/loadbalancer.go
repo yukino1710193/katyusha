@@ -3,8 +3,8 @@ package fukabunsan // 負荷分散 - ふかぶんさん - Load Balancing
 import (
 	"reflect"
 
-	"github.com/bonavadeur/katyusha/pkg/bonalib"
-	"github.com/bonavadeur/katyusha/pkg/hashi"
+	"github.com/yukino1710193/katyusha/pkg/bonalib"
+	"github.com/yukino1710193/katyusha/pkg/hashi"
 )
 
 type LoadBalancer struct {
