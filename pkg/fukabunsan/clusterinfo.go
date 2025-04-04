@@ -2,6 +2,7 @@ package fukabunsan
 
 import (
 	"context"
+	"fmt"
 	"net"
 	"sort"
 	"strings"
@@ -13,8 +14,8 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
-
 	"k8s.io/client-go/util/retry"
+
 )
 
 type SourceIPinfo struct {
@@ -139,4 +140,29 @@ func GetPodsCIDRs() []PodCIDR {
 	}
 
 	return ret
+}
+
+func GetSourceInfo(SourceIP string) SourceIPinfo {
+	result := SourceIPinfo{}
+	source := net.ParseIP(SourceIP)
+
+	for _, cidr := range PODCIDRS {
+		_, ipNet, err := net.ParseCIDR(fmt.Sprintf("%s/%d", cidr.PodIPRange, cidr.PodPrefix))
+		if err != nil {
+			continue
+		}
+		if ipNet.Contains(source) {
+			result.Node = nodeIPInfo{
+				Name:      cidr.Nodename,
+				IPaddress: cidr.NodeIP,
+			}
+			result.Pod = podIPInfo{
+				IPRange:      cidr.PodIPRange,
+				PrefixLength: cidr.PodPrefix,
+			}
+			break
+		}
+	}
+
+	return result
 }

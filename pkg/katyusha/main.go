@@ -4,6 +4,7 @@ import (
 	_ "github.com/bonavadeur/katyusha/pkg/junbanmachi"
 	_ "github.com/bonavadeur/katyusha/pkg/fukabunsan"
 	_ "github.com/bonavadeur/katyusha/pkg/outoushuugou"
+	_ "github.com/bonavadeur/katyusha/pkg/global"
 )
 
 const (

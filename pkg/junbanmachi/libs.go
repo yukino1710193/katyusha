@@ -39,3 +39,13 @@ func packet2PopResponse(packet *Packet) *PopResponse {
 
 	return retPopResponse
 }
+
+func GetHeader(p *Packet, key string) (string, bool) {
+	for _, h := range p.Headers {
+		if h.Field == key {
+			return h.Value, true
+		}
+	}
+	return "", false
+}
+

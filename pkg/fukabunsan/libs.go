@@ -1,5 +1,6 @@
 package fukabunsan // 負荷分散 - ふかぶんさん - Load Balancing
 import (
+	"math/rand"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -42,6 +43,7 @@ func Get_Miporin_Matrix() ([][]int32, error) {
 
 	return wait_response, nil
 }
+
 func startPeriodicTask() {
 	// Tạo ticker mỗi 2 giây
 	ticker := time.NewTicker(2 * time.Second)
@@ -57,8 +59,6 @@ func startPeriodicTask() {
 		mu.Lock()
 		MIPORIN_matrix = matrix
 		mu.Unlock()
-
-		// bonalib.Log("Ma trận Weight được cập nhật:", MIPORIN_matrix)
 	}
 
 }
@@ -101,14 +101,13 @@ func IPfromNode(ip string) string {
 	return "Request from Unknown Node"
 }
 
-func gachaNodeTarget(random int,Fight []int32) int {
+func Choose(pool []int32) int {
 	var ret int = -1;
-	for _ , value := range Fight {
+	random := rand.Intn(100);
+	for _ , value := range pool {
 		ret++
 		if random < int(value) {
 			return ret // trả về node
-
-
 		}
 		random -= int(value)
 	}

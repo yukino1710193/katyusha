@@ -1,13 +1,16 @@
 package junbanmachi // 順番待ち - じゅんばんまち - Queuing
 
-import "github.com/bonavadeur/katyusha/pkg/bonalib"
+import (
+	"github.com/bonavadeur/katyusha/pkg/bonalib"
+	_"github.com/bonavadeur/katyusha/pkg/global"
+)
 
 const (
 	BASE_PATH = "/katyusha/junbanmachi"
 )
 
 var (
-	QUEUE *ExtraQueue
+	QUEUE    *ExtraQueue
 )
 
 func init() {
