@@ -1,8 +1,8 @@
 package fukabunsan // 負荷分散 - ふかぶんさん - Load Balancing
 import (
-	"math/rand"
 	"encoding/json"
 	"io"
+	"math/rand"
 	"net/http"
 	"strconv"
 	"strings"
@@ -45,12 +45,12 @@ func Get_Miporin_Matrix() ([][]int32, error) {
 }
 
 func startPeriodicTask() {
-	// Tạo ticker mỗi 2 giây
-	ticker := time.NewTicker(2 * time.Second)
+	// Tạo ticker mỗi 50 giây
+	ticker := time.NewTicker(50 * time.Second)
 	defer ticker.Stop() // Đảm bảo ticker được dừng khi kết thúc chương trình
 
 	for range ticker.C {
-		// Mỗi 2 giây, gọi hàm getMatrix()
+		// Mỗi 50 giây, gọi hàm getMatrix()
 		matrix, err := Get_Miporin_Matrix()
 		if err != nil {
 			bonalib.Log("Lỗi khi lấy ma trận:", err)
@@ -92,7 +92,7 @@ func IsPodinPodcidr(ip string, cidr PodCIDR) bool {
 }
 
 func IPfromNode(ip string) string {
-	for _ , cidr := range PODCIDRS {
+	for _, cidr := range PODCIDRS {
 		if IsPodinPodcidr(ip, cidr) {
 			// bonalib.Info("Request from node :", cidr.Nodename)
 			return cidr.Nodename
@@ -102,9 +102,9 @@ func IPfromNode(ip string) string {
 }
 
 func Choose(pool []int32) int {
-	var ret int = -1;
-	random := rand.Intn(100);
-	for _ , value := range pool {
+	var ret int = -1
+	random := rand.Intn(100)
+	for _, value := range pool {
 		ret++
 		if random < int(value) {
 			return ret // trả về node

@@ -7,7 +7,7 @@ import (
 
 const (
 	BASE_PATH   = "/katyusha/fukabunsan"
-	MIPORIN_URL = "http://miporin.knative-serving.svc.cluster.local/api/weight/okaasan/hello"
+	MIPORIN_URL = "http://miporin.knative-serving.svc.cluster.local/api/weight/okasan/okaasan/kodomo/hello"
 	ALL         = -1
 )
 

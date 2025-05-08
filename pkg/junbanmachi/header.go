@@ -10,6 +10,6 @@ func (q *ExtraQueue) HeaderModifier(p *Packet) {
 	// example of adding header
 	p.Headers = append(p.Headers, &PushRequest_HeaderSchema{
 		Field: "OutComing-J-moment",
-		Value: time.Now().Format(time.RFC3339),
+		Value: time.Now().Format(time.RFC3339Nano),
 	})
 }

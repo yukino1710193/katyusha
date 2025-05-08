@@ -3,10 +3,13 @@ package outoushuugou // 応答集合 - おうとうしゅうごう - Response Po
 import (
 	"github.com/bonavadeur/katyusha/pkg/bonalib"
 	_ "github.com/bonavadeur/katyusha/pkg/global"
+	"time"
+
 )
 
 const (
 	BASE_PATH = "/katyusha/outoushuugou"
+	SCRAPE_INTERVAL = 10 * time.Second
 )
 
 var (
@@ -22,5 +25,14 @@ func init() {
 		go func() {
 			POOL = NewResponsePool()
 		}()
+		// go monitor()
 	}
 }
+
+// func monitor() {
+// 	for POOL == nil {
+// 		time.Sleep(100 * time.Millisecond)
+// 	}
+// 	POOL.StartPrometheusExporter(SCRAPE_INTERVAL)
+// 	StartPrometheusServer()
+// }

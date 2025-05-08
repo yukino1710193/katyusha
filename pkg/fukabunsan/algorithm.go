@@ -6,12 +6,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bonavadeur/katyusha/pkg/bonalib"
+	// "github.com/bonavadeur/katyusha/pkg/bonalib"
 	"github.com/bonavadeur/katyusha/pkg/global"
 )
 
 func (lb *LoadBalancer) LBAlgorithm(lbRequest *LBRequest) *LBResponse {
-	bonalib.Log("LBAlgorithm : ", lbRequest)
+	// bonalib.Log("LBAlgorithm : ", lbRequest)
 	// random region Edge or cloud
 
 	// 	percentice := RL_RATE
@@ -43,7 +43,7 @@ func (lb *LoadBalancer) LBAlgorithm(lbRequest *LBRequest) *LBResponse {
 	}
 	ret.Headers = append(ret.Headers, &LBResponse_HeaderSchema{
 		Field: "LB-Momment",
-		Value: time.Now().Format(time.RFC3339),
+		Value: time.Now().Format(time.RFC3339Nano),
 	})
 	global.IncOutgoing()
 	return ret
