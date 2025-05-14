@@ -2,7 +2,7 @@ package junbanmachi // 順番待ち - じゅんばんまち - Queuing
 
 import (
 	"time"
-
+	"strconv"
 	// "github.com/bonavadeur/katyusha/pkg/bonalib"
 	"github.com/bonavadeur/katyusha/pkg/global"
 )
@@ -15,7 +15,7 @@ func (q *ExtraQueue) SortAlgorithm(p *Packet) {
 		Value: time.Now().Format(time.RFC3339Nano),
 	},&PushRequest_HeaderSchema{
 		Field: "Queue-J-length",
-		Value: time.Now().Format(time.RFC3339Nano),
+		Value: strconv.Itoa(len(q.Queue)),
 	})
 
 	q.Queue = append([]*Packet{p}, q.Queue...)
