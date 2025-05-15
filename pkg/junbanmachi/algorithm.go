@@ -3,12 +3,12 @@ package junbanmachi // 順番待ち - じゅんばんまち - Queuing
 import (
 	"time"
 	"strconv"
-	"github.com/bonavadeur/katyusha/pkg/bonalib"
+	// "github.com/bonavadeur/katyusha/pkg/bonalib"
 	"github.com/bonavadeur/katyusha/pkg/global"
 )
 
 func (q *ExtraQueue) SortAlgorithm(p *Packet) {
-	bonalib.Info("SortAlgorithm", "Packet", p)
+	// bonalib.Info("SortAlgorithm", "Packet", p)
 	// example of adding header
 	p.Headers = append(p.Headers, &PushRequest_HeaderSchema{
 		Field: "InComing-J-moment",

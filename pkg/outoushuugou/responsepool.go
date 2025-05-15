@@ -6,12 +6,15 @@ import (
 
 	"github.com/bonavadeur/katyusha/pkg/bonalib"
 	"github.com/bonavadeur/katyusha/pkg/hashi"
+
 )
 
 type ResponsePool struct {
 	responseBridge    *hashi.Hashi
 	Pool              []*ResponseFeedback
 	PoolAppendingLock *sync.Mutex
+
+	lastExportedCount int // Số lượng phần tử đã export
 }
 
 func NewResponsePool() *ResponsePool {
@@ -40,6 +43,5 @@ func (rp *ResponsePool) ResponsePoolAdapter(params ...interface{}) (interface{},
 	bonalib.Info("ResponsePoolAdapter", feedback)
 	rp.Pool = append([]*ResponseFeedback{feedback}, rp.Pool...)
 	rp.PoolAppendingLock.Unlock()
-
 	return &ResponseConfirm{SymbolizeResponse: Status_Success}, nil
 }
