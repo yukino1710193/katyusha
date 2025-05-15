@@ -10,7 +10,7 @@ spec:
         autoscaling.knative.dev/scale-to-zero-pod-retention-period: "0s"
         autoscaling.knative.dev/target-burst-capacity: "-1"
         autoscaling.knative.dev/window: "12s"
-        autoscaling.knative.dev/min-scale: "1"
+        autoscaling.knative.dev/min-scale: "3"
         autoscaling.knative.dev/target: "10"
     spec:
       containerConcurrency: 1 # default is 0, means unlimited
@@ -24,8 +24,10 @@ spec:
                 operator: In
                 values:
                 - node1
+                - node2
+                - node3
       containers:
-      - image: docker.io/bonavadeur/shuka:v1.3
+      - image: docker.io/yukinoryu/shuka:v1.4
         resources:
           limits:
             cpu: 500m
