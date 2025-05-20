@@ -1,45 +1,25 @@
 package outoushuugou
 
 import (
-	"time"
 	"github.com/bonavadeur/katyusha/pkg/bonalib"
 )
 
 type Metric struct {
+	ID       uint32 `protobuf:"varint,1,opt,name=ID,proto3" json:"ID,omitempty"`
+	SourceIP string `protobuf:"bytes,2,opt,name=SourceIP,proto3" json:"SourceIP,omitempty"`
+	Domain   string `protobuf:"bytes,3,opt,name=Domain,proto3" json:"Domain,omitempty"`
+	URI      string `protobuf:"bytes,4,opt,name=URI,proto3" json:"URI,omitempty"`
+	Method   string `protobuf:"bytes,5,opt,name=Method,proto3" json:"Method,omitempty"`
+	DestIP   string
+	NodeD    string
 	// Các metric khác
-	ProcessingTime  float64
-	QueueingNTime   float64
+	ProcessingTime float64
+	QueueingNTime  float64
 	// Incoming        int32
 	// Outgoing        int32
 	QueueingJTime   float64
 	QueueingJLength float64
 	// Các metric khác
-}
-
-func (rp *ResponsePool) StartRLexporter(interval time.Duration) {
-	go func() {
-		for {
-			time.Sleep(interval)
-
-			rp.PoolAppendingLock.Lock()
-			// Lấy số lượng phần tử trong Pool
-			newCount := len(rp.Pool)
-			if newCount > rp.lastExportedCount {
-				// Lấy phần tử mới (prepend nên lấy [0:delta])
-				delta := newCount - rp.lastExportedCount
-				newItems := rp.Pool[:delta]
-				// cho Data về null
-				DATA = nil
-				for _, fb := range newItems {
-					// Ghi metric tại đây
-					appendMetricFromFeedback(fb, &DATA)
-					// Đẩy metric cho RL tại đây
-				}
-				rp.lastExportedCount = newCount
-			}
-			rp.PoolAppendingLock.Unlock()
-		}
-	}()
 }
 
 func clearDataPOOL() {
@@ -53,5 +33,5 @@ func clearDataPOOL() {
 	// Ghi log
 	bonalib.Log("Outoushuugou", "Data cleared")
 	// Ghi log
-	bonalib.Log("Outoushuugou", "Data cleared")
+	bonalib.Log("Outoushuugou", "Pool cleared")
 }

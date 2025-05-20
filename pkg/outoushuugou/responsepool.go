@@ -42,6 +42,7 @@ func (rp *ResponsePool) ResponsePoolAdapter(params ...interface{}) (interface{},
 	rp.PoolAppendingLock.Lock()
 	bonalib.Info("ResponsePoolAdapter", feedback)
 	rp.Pool = append([]*ResponseFeedback{feedback}, rp.Pool...)
+	appendMetricFromFeedback(feedback, &DATA)
 	rp.PoolAppendingLock.Unlock()
 	return &ResponseConfirm{SymbolizeResponse: Status_Success}, nil
 }

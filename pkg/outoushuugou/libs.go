@@ -3,7 +3,7 @@ package outoushuugou // 応答集合 - おうとうしゅうごう - Response Po
 import (
 	"strconv"
 	"time"
-
+	"github.com/bonavadeur/katyusha/pkg/fukabunsan"
 	// "github.com/bonavadeur/katyusha/pkg/global"
 )
 
@@ -42,6 +42,7 @@ func GetColdStartPods() int{
 	return 0
 }
 
+
 func appendMetricFromFeedback(fb *ResponseFeedback, data *[]*Metric) {
 	h := headerToMap(fb.Headers)
 
@@ -57,14 +58,23 @@ func appendMetricFromFeedback(fb *ResponseFeedback, data *[]*Metric) {
 	tProcess := parseFloat(h["Shuka-Processing-Time"])
 
 
+
 	// Tính toán (thời gian chênh lệch, đơn vị giây)
 	queueingJTime := tOutcomingJMomentResponsed.Sub(tIncomingJMomentResponsed).Seconds()
 	queueingNTime := tOutcomingNMoment.Sub(tIncomingNMoment).Seconds()
 	// totaltime := time.Now().Sub(tLbMommentResponsed).Seconds()
-
+	IP_dest,_ := fb.GetHeader("Ip-Destination-Responsed")
 
 
 	metric := &Metric{
+		ID: 		   fb.ID,
+		SourceIP:      fb.SourceIP,
+		Domain:        fb.Domain,
+		URI:           fb.URI,
+		Method:        fb.Method,
+		DestIP:        IP_dest,
+		NodeD:       fukabunsan.IPfromNode(IP_dest),
+		// Các metric khác
 		ProcessingTime: tProcess,
 		QueueingNTime:   queueingNTime,
 		QueueingJTime: queueingJTime,

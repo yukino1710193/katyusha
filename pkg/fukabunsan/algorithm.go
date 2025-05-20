@@ -34,6 +34,9 @@ func (lb *LoadBalancer) LBAlgorithm(lbRequest *LBRequest) *LBResponse {
 	ret.Headers = append(ret.Headers, &LBResponse_HeaderSchema{
 		Field: "LB-Momment",
 		Value: time.Now().Format(time.RFC3339Nano),
+	}, &LBResponse_HeaderSchema{
+		Field: "Ip-Destination",
+		Value: selectedTargets[result],
 	})
 	global.IncOutgoing()
 	return ret
