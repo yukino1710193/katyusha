@@ -2,9 +2,11 @@ package outoushuugou // 応答集合 - おうとうしゅうごう - Response Po
 
 import (
 	"strconv"
+	"strings"
 	"time"
+
+	"github.com/bonavadeur/katyusha/pkg/bonalib"
 	"github.com/bonavadeur/katyusha/pkg/fukabunsan"
-	// "github.com/bonavadeur/katyusha/pkg/global"
 )
 
 func (p *ResponseFeedback) GetHeader(key string) (string, bool) {
@@ -27,62 +29,66 @@ func headerToMap(headers []*ResponseFeedback_HeaderSchema) map[string]string {
 func parseRFC3339Nano(ts string) time.Time {
 	t, err := time.Parse(time.RFC3339Nano, ts)
 	if err != nil {
+		bonalib.Log("[parseRFC3339Nano] Lỗi khi parse:", ts, err)
 		return time.Time{}
 	}
 	return t
 }
 
 func parseFloat(s string) float64 {
-	f, _ := strconv.ParseFloat(s, 64)
+	f, err := strconv.ParseFloat(s, 64)
+	if err != nil {
+		bonalib.Log("[parseFloat] Lỗi khi parse:", s, err)
+	}
 	return f
 }
 
-func GetColdStartPods() int{
-	// Lấy giá trị cold-start-pods từ miporin
+func GetColdStartPods() int {
+	// TODO: Cập nhật logic khi có metric từ miporin
 	return 0
 }
 
-
 func appendMetricFromFeedback(fb *ResponseFeedback, data *[]*Metric) {
+	bonalib.Log("[appendMetricFromFeedback] Bắt đầu phân tích metric cho request:", fb.ID)
+
+	// In toàn bộ headers
+	for _, h := range fb.Headers {
+		bonalib.Log("[appendMetricFromFeedback][Header] field:", h.Field, ", value:", h.Value)
+	}
 	h := headerToMap(fb.Headers)
 
-
-	// Parse timestamp từ header
 	tIncomingJMomentResponsed := parseRFC3339Nano(h["Incoming-J-Moment-Responsed"])
 	QueueJLengthResponsed := parseFloat(h["Queue-J-Length-Responsed"])
 	tOutcomingJMomentResponsed := parseRFC3339Nano(h["Outcoming-J-Moment-Responsed"])
-	// tLbMommentResponsed := parseRFC3339Nano(h["Lb-Momment-Responsed"])
 	tIncomingNMoment := parseRFC3339Nano(h["Incoming-N-Moment"])
 	tOutcomingNMoment := parseRFC3339Nano(h["Outcoming-N-Moment"])
-	
-	tProcess := parseFloat(h["Shuka-Processing-Time"])
+	tProcess := parseFloat(strings.TrimSuffix(h["Shuka-Processing-Time"], "s"))
 
-
-
-	// Tính toán (thời gian chênh lệch, đơn vị giây)
 	queueingJTime := tOutcomingJMomentResponsed.Sub(tIncomingJMomentResponsed).Seconds()
 	queueingNTime := tOutcomingNMoment.Sub(tIncomingNMoment).Seconds()
-	// totaltime := time.Now().Sub(tLbMommentResponsed).Seconds()
-	IP_dest,_ := fb.GetHeader("Ip-Destination-Responsed")
 
+	IP_dest, ok := fb.GetHeader("Ip-Destination-Responsed")
+	if !ok || IP_dest == "" {
+		bonalib.Log("[appendMetricFromFeedback] Thiếu header Ip-Destination-Responsed")
+	}
+
+	node := fukabunsan.IPfromNode(IP_dest)
+	bonalib.Log("[appendMetricFromFeedback] Source:", fb.SourceIP, ", Dest:", IP_dest, ", Node:", node)
 
 	metric := &Metric{
-		ID: 		   fb.ID,
-		SourceIP:      fb.SourceIP,
-		Domain:        fb.Domain,
-		URI:           fb.URI,
-		Method:        fb.Method,
-		DestIP:        IP_dest,
-		NodeD:       fukabunsan.IPfromNode(IP_dest),
-		// Các metric khác
-		ProcessingTime: tProcess,
+		ID:              fb.ID,
+		SourceIP:        fb.SourceIP,
+		Domain:          fb.Domain,
+		URI:             fb.URI,
+		Method:          fb.Method,
+		DestIP:          IP_dest,
+		NodeD:           node,
+		ProcessingTime:  tProcess,
 		QueueingNTime:   queueingNTime,
-		QueueingJTime: queueingJTime,
+		QueueingJTime:   queueingJTime,
 		QueueingJLength: QueueJLengthResponsed,
-		// Incoming:       global.GetIncoming(),
-		// Outgoing:       global.GetOutgoing(),
-		
 	}
 
 	*data = append(*data, metric)
+	bonalib.Log("[appendMetricFromFeedback] Metric ghi nhận:", metric)
 }

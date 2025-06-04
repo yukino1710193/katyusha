@@ -1,35 +1,58 @@
 package outoushuugou
 
 import (
-	"time"
+	"fmt"
 	"strconv"
 	"strings"
-	// "github.com/bonavadeur/katyusha/pkg/bonalib"
-	_ "github.com/bonavadeur/katyusha/pkg/global"
+	"time"
+
 	"github.com/bonavadeur/katyusha/pkg/fukabunsan"
 )
 
 func (rp *ResponsePool) RL(interval time.Duration) {
-	go func() {
-		for {
-			time.Sleep(interval)
-			// Tính toán RL_p
-			QueueingNTime := make([]float64, len(fukabunsan.POD_READY))
-			ProcessingTime := make([]float64, len(fukabunsan.POD_READY))
-			for _ , s := range DATA {
-				node_Dest_STT, _ := strconv.Atoi(strings.TrimPrefix(s.NodeD, "node"))
-				node_Dest_STT = node_Dest_STT - 1
-				QueueingNTime[node_Dest_STT] += float64(s.QueueingNTime)
-			}
-			for _, s := range DATA {
-				node_Dest_STT, _ := strconv.Atoi(strings.TrimPrefix(s.NodeD, "node"))
-				node_Dest_STT = node_Dest_STT - 1
-				ProcessingTime[node_Dest_STT] += float64(s.ProcessingTime)
-			}
+	for {
+		time.Sleep(interval)
 
+		fmt.Println("[RL] Start RL computation loop")
 
-			// và cập nhật lại giá trị cho RL_p
-
+		numPods := len(fukabunsan.POD_READY)
+		if numPods == 0 {
+			fmt.Println("[RL][WARN] Không có POD_READY nào, bỏ qua vòng tính toán.")
+			continue
 		}
-	}()
+
+		QueueingNTime := make([]float64, numPods)
+		ProcessingTime := make([]float64, numPods)
+
+		for _, s := range DATA {
+			nodeRaw := s.NodeD
+			nodeStr := strings.TrimPrefix(nodeRaw, "node")
+			nodeIndex, err := strconv.Atoi(nodeStr)
+
+			if err != nil {
+				fmt.Printf("[RL][WARN] Invalid NodeD format: '%s', err: %v\n", nodeRaw, err)
+				continue
+			}
+
+			nodeIndex -= 1
+			if nodeIndex < 1 || nodeIndex >= numPods {
+				fmt.Printf("[RL][WARN] Node index out of range: %d (from '%s'), POD_READY size = %d\n", nodeIndex, nodeRaw, numPods)
+				continue
+			}
+
+			QueueingNTime[nodeIndex] += s.QueueingNTime
+			ProcessingTime[nodeIndex] += s.ProcessingTime
+
+			fmt.Printf("[RL][DEBUG] node=%s index=%d QN+=%.4f PT+=%.4f\n",
+				nodeRaw, nodeIndex, s.QueueingNTime, s.ProcessingTime)
+		}
+
+		// Log tổng kết cho mỗi node
+		for i := 0; i < numPods; i++ {
+			fmt.Printf("[RL][SUMMARY] node%d: QueueingN=%.4f, Processing=%.4f\n",
+				i+1, QueueingNTime[i], ProcessingTime[i])
+		}
+
+		fmt.Println("[RL] RL computation loop done.")
+	}
 }

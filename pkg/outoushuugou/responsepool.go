@@ -6,7 +6,6 @@ import (
 
 	"github.com/bonavadeur/katyusha/pkg/bonalib"
 	"github.com/bonavadeur/katyusha/pkg/hashi"
-
 )
 
 type ResponsePool struct {
