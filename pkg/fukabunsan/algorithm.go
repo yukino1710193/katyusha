@@ -9,63 +9,70 @@ import (
 	"github.com/bonavadeur/katyusha/pkg/bonalib"
 	"github.com/bonavadeur/katyusha/pkg/global"
 )
+
 func (lb *LoadBalancer) LBAlgorithm(lbRequest *LBRequest) *LBResponse {
-	// bonalib.Log("[LBAlgorithm] Nhận request:", lbRequest)
+	const retryDelay = 200 * time.Millisecond
+	attempt := 0
 
-	srcIP := strings.Split(lbRequest.SourceIP, ":")[0]
-	node_Source := IPfromNode(srcIP)
-	// bonalib.Log("[LBAlgorithm] Source IP:", srcIP, "-> Node:", node_Source)
+	for {
+		attempt++
+		bonalib.Log("[LBAlgorithm] 🌀 Attempt", attempt, "Nhận request:", lbRequest)
 
-	node_Source_STT, err := strconv.Atoi(strings.TrimPrefix(node_Source, "node"))
-	if err != nil || node_Source_STT <= 0 {
-		bonalib.Log("[LBAlgorithm] ❌ Lỗi khi parse node_Source:", node_Source, "err:", err)
-		return nil
-	}
+		srcIP := strings.Split(lbRequest.SourceIP, ":")[0]
+		node_Source := IPfromNode(srcIP)
 
-	if node_Source_STT-1 >= len(MIPORIN_matrix) {
-		bonalib.Log("[LBAlgorithm] ❌ node_Source_STT vượt giới hạn MIPORIN_matrix")
-		bonalib.Log("[LBAlgorithm] node_Source_STT:", node_Source_STT, "MIPORIN_matrix length:", len(MIPORIN_matrix))
-		return nil
-	}
-
-	node_target := Choose(MIPORIN_matrix[node_Source_STT-1])
-	if node_target < 0 || node_target >= len(PODCIDRS) {
-		bonalib.Log("[LBAlgorithm] ❌ node_target không hợp lệ:", node_target)
-		return nil
-	}
-	// bonalib.Log("[LBAlgorithm] node_target chọn:", node_target)
-
-	var selectedTargets []string
-	for _, target := range lbRequest.Targets {
-		if IsPodinPodcidr(target, PODCIDRS[node_target]) {
-			selectedTargets = append(selectedTargets, target)
+		node_Source_STT, err := strconv.Atoi(strings.TrimPrefix(node_Source, "node"))
+		if err != nil || node_Source_STT <= 0 {
+			bonalib.Warn("[LBAlgorithm] ❌ Lỗi parse node_Source:", node_Source, "err:", err)
+			gotoDelay(attempt, retryDelay)
+			continue
 		}
-	}
 
-	if len(selectedTargets) == 0 {
-		bonalib.Log("[LBAlgorithm] ❌ Không tìm thấy target phù hợp cho node", node_target)
-		return nil
-	}
+		if node_Source_STT-1 >= len(MIPORIN_matrix) {
+			bonalib.Warn("[LBAlgorithm] ❌ node_Source_STT vượt giới hạn MIPORIN_matrix:",
+				"STT =", node_Source_STT, "Len =", len(MIPORIN_matrix))
+			gotoDelay(attempt, retryDelay)
+			continue
+		}
 
-	result := rand.Intn(len(selectedTargets))
-	selected := selectedTargets[result]
-	// bonalib.Log("[LBAlgorithm] Chọn target:", selected)
+		node_target := Choose(MIPORIN_matrix[node_Source_STT-1])
+		if node_target < 0 || node_target >= len(PODCIDRS) {
+			bonalib.Warn("[LBAlgorithm] ❌ node_target không hợp lệ:", node_target)
+			gotoDelay(attempt, retryDelay)
+			continue
+		}
 
-	ret := &LBResponse{
-		Target: selected,
-		Headers: []*LBResponse_HeaderSchema{
-			{
-				Field: "LB-Momment",
-				Value: time.Now().Format(time.RFC3339Nano),
+		var selectedTargets []string
+		for _, target := range lbRequest.Targets {
+			if IsPodinPodcidr(target, PODCIDRS[node_target]) {
+				selectedTargets = append(selectedTargets, target)
+			}
+		}
+
+		if len(selectedTargets) == 0 {
+			bonalib.Warn("[LBAlgorithm] ❌ Không tìm thấy target hợp lệ cho node", node_target)
+			gotoDelay(attempt, retryDelay)
+			continue
+		}
+
+		selected := selectedTargets[rand.Intn(len(selectedTargets))]
+
+		ret := &LBResponse{
+			Target: selected,
+			Headers: []*LBResponse_HeaderSchema{
+				{
+					Field: "LB-Momment",
+					Value: time.Now().Format(time.RFC3339Nano),
+				},
+				{
+					Field: "Ip-Destination",
+					Value: selected,
+				},
 			},
-			{
-				Field: "Ip-Destination",
-				Value: selected,
-			},
-		},
-	}
+		}
 
-	global.IncOutgoing()
-	// bonalib.Log("[LBAlgorithm] Hoàn tất request")
-	return ret
+		global.IncOutgoing()
+		bonalib.Log("[LBAlgorithm] ✅ Thành công tại attempt", attempt)
+		return ret
+	}
 }

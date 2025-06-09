@@ -27,7 +27,4 @@ func clearDataPOOL() {
 	POOL.Pool = make([]*ResponseFeedback, 0)
 	POOL.lastExportedCount = 0
 	DATA = nil
-
-	// bonalib.Log("[clearDataPOOL] Pool cleared")
-	// bonalib.Log("[clearDataPOOL] DATA cleared")
 }

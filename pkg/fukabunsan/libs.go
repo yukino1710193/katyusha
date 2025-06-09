@@ -174,3 +174,10 @@ func Choose(pool []int32) int {
 	bonalib.Log("[Choose] ❌ Không chọn được node nào (pool không đủ phân phối)")
 	return -1
 }
+
+func gotoDelay(attempt int, delay time.Duration) {
+	if attempt%10 == 0 {
+		bonalib.Warn("[LBAlgorithm] ‼️ CẢNH BÁO: Đã retry", attempt, "lần mà vẫn thất bại")
+	}
+	time.Sleep(delay)
+}

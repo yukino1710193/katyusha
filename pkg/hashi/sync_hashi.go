@@ -12,6 +12,7 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
+
 type SyncHashi struct {
 	Name           string
 	bridgeType     BridgeType // ["client", "server"]

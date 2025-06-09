@@ -5,6 +5,7 @@ WORKDIR /
 
 COPY ./* /ko-app/
 
+RUN apk add --no-cache curl bash
 RUN chmod +x /ko-app/*
 
 ENTRYPOINT ["/ko-app/startup.sh"]
