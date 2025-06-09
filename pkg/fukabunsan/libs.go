@@ -19,34 +19,47 @@ var (
 )
 
 func Get_Miporin_Matrix() ([][]int32, error) {
-	// bonalib.Log("[Get_Miporin_Matrix] Bắt đầu gọi tới MIPORIN_URL")
-	resp, err := http.Get(MIPORIN_URL)
-	if err != nil {
-		bonalib.Log("[Get_Miporin_Matrix] ❌ Lỗi khi gọi GET:", err)
-		return nil, err
-	}
-	defer resp.Body.Close()
+	var (
+		wait_response [][]int32
+		attempt       int
+	)
 
-	if resp.StatusCode != http.StatusOK {
-		bonalib.Log("[Get_Miporin_Matrix] ❌ Mã trạng thái HTTP không OK:", resp.StatusCode)
-		return nil, fmt.Errorf("bad status: %d", resp.StatusCode)
-	}
+	for {
+		attempt++
+		bonalib.Log("[Get_Miporin_Matrix] 🌀 Lần gọi thứ", attempt, "tới MIPORIN_URL...")
 
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		bonalib.Log("[Get_Miporin_Matrix] ❌ Lỗi khi đọc body:", err)
-		return nil, err
-	}
+		resp, err := http.Get(MIPORIN_URL)
+		if err != nil {
+			bonalib.Warn("[Get_Miporin_Matrix] ❌ Lỗi GET (lần", attempt, "):", err)
+			time.Sleep(2 * time.Second)
+			continue
+		}
 
-	var wait_response [][]int32
-	err = json.Unmarshal(body, &wait_response)
-	if err != nil {
-		bonalib.Log("[Get_Miporin_Matrix] ❌ Lỗi khi parse JSON:", err)
-		return nil, err
-	}
+		if resp.StatusCode != http.StatusOK {
+			bonalib.Warn("[Get_Miporin_Matrix] ❌ Status không OK (lần", attempt, "):", resp.StatusCode)
+			resp.Body.Close()
+			time.Sleep(2 * time.Second)
+			continue
+		}
 
-	// bonalib.Log("[Get_Miporin_Matrix] Đã lấy thành công ma trận")
-	return wait_response, nil
+		body, err := io.ReadAll(resp.Body)
+		resp.Body.Close()
+		if err != nil {
+			bonalib.Warn("[Get_Miporin_Matrix] ❌ Lỗi đọc body (lần", attempt, "):", err)
+			time.Sleep(2 * time.Second)
+			continue
+		}
+
+		err = json.Unmarshal(body, &wait_response)
+		if err != nil {
+			bonalib.Warn("[Get_Miporin_Matrix] ❌ Lỗi parse JSON (lần", attempt, "):", err)
+			time.Sleep(2 * time.Second)
+			continue
+		}
+
+		bonalib.Log("[Get_Miporin_Matrix] ✅ Thành công sau", attempt, "lần gọi.")
+		return wait_response, nil
+	}
 }
 
 func startPeriodicTask() {
