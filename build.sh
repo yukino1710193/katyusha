@@ -83,23 +83,34 @@ deployNewVersion() {
 }
 
 logPod() {
+    targetNode="$1"
     sleep 1
-    pods=($(kubectl -n $NAMESPACE get pod | grep $component | grep Running | awk '{print $1}'))
-    while [ "${pods[0]}" == "" ];
-    do
+
+    pod=""
+    while [ -z "$pod" ]; do
+        if [[ -n "$targetNode" ]]; then
+            # Tìm pod theo component + trạng thái + node
+            pod=$(kubectl -n "$NAMESPACE" get pod -o wide | grep "$component" | grep Running | grep "$targetNode" | awk '{print $1; exit}')
+        else
+            # Tìm pod đầu tiên theo component + trạng thái
+            pod=$(kubectl -n "$NAMESPACE" get pod -o wide | grep "$component" | grep Running | awk '{print $1; exit}')
+        fi
         sleep 1
-        pods=($(kubectl -n $NAMESPACE get pod | grep $component | grep Running | awk '{print $1}'))
     done
-    echo "pod:"${pods[0]}
-    kubectl -n $NAMESPACE wait --for=condition=ready pod ${pods[0]} > /dev/null 2>&1
+
+    echo "🎯 pod: $pod${targetNode:+ (on node: $targetNode)}"
+    kubectl -n "$NAMESPACE" wait --for=condition=ready pod "$pod" > /dev/null 2>&1
+
     clear
-    endTime=`date +%s`
+    endTime=$(date +%s)
     logInfo "KoBuild time was $koBuildTime seconds."
-    logInfo "Build time was `expr $endTime - $startTime` seconds."
+    logInfo "Build time was $(expr $endTime - $startTime) seconds."
     logStage "$IMAGE logs"
-    echo "pod:"${pods[0]}
-    kubectl -n $NAMESPACE logs ${pods[0]} -f
+
+    echo "📦 pod: $pod"
+    kubectl -n "$NAMESPACE" logs "$pod" -f
 }
+
 #
 #
 #
@@ -120,7 +131,7 @@ if [ $OPTION == "ful" ]; then
     # ./build.sh ful mnode
     dockerBuild fast $2
     deployNewVersion
-    logPod
+    logPod $3
 elif [ $OPTION == "push" ]; then
     # ./build.sh push snode
     # ./build.sh push mnode
@@ -130,5 +141,5 @@ elif [ $OPTION == "push" ]; then
     sleep 1
 elif [ $OPTION == "log" ]; then
     deployNewVersion
-    logPod
+    logPod $3
 fi

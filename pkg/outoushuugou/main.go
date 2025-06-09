@@ -7,6 +7,8 @@ import (
 	"github.com/bonavadeur/katyusha/pkg/bonalib"
 	_ "github.com/bonavadeur/katyusha/pkg/global"
 	"github.com/labstack/echo/v4"
+	"fmt"
+	"strconv"
 )
 
 const (
@@ -52,13 +54,17 @@ func server() {
 		return c.JSON(http.StatusOK, RL_p);
 	})
 
+	e.POST("/clear-log/:mode", func(c echo.Context) error {
+	modeStr := c.Param("mode")
+	mode, err := strconv.Atoi(modeStr)
+	if err != nil {
+		return c.String(http.StatusBadRequest, "Invalid mode (must be 1 or 2)")
+	}
+
+	clearScreen(mode)
+	return c.String(http.StatusOK, fmt.Sprintf("Screen cleared with mode %d", mode))
+})
+
 	e.Logger.Fatal(e.Start(":19090"))
 }
 
-// func monitor() {
-// 	for POOL == nil {
-// 		time.Sleep(100 * time.Millisecond)
-// 	}
-// 	POOL.StartPrometheusExporter(SCRAPE_INTERVAL)
-// 	StartPrometheusServer()
-// }

@@ -28,6 +28,6 @@ func clearDataPOOL() {
 	POOL.lastExportedCount = 0
 	DATA = nil
 
-	bonalib.Log("[clearDataPOOL] Pool cleared")
-	bonalib.Log("[clearDataPOOL] DATA cleared")
+	// bonalib.Log("[clearDataPOOL] Pool cleared")
+	// bonalib.Log("[clearDataPOOL] DATA cleared")
 }
